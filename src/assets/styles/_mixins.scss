@@ -1,0 +1,23 @@
+//
+// Mixins
+//
+
+// Transition mixin
+@mixin transition(
+  $delay: 0s,
+  $duration: 0.3s,
+  $property: all,
+  $function: ease-in-out
+) {
+  transition-delay: $delay;
+  transition-duration: $duration;
+  transition-property: $property;
+  transition-timing-function: $function;
+}
+
+// Media query mixin
+@mixin media($width) {
+  @media only screen and (min-width: $width) {
+    @content;
+  }
+}
