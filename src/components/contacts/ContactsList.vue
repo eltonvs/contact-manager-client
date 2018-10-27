@@ -21,7 +21,11 @@ import ContactModal from '@/components/contacts/ContactModal.vue';
 
 export default {
   name: 'ContactsList',
-  components: { NoResults, ContactRow, ContactModal },
+  components: {
+    NoResults,
+    ContactRow,
+    ContactModal,
+  },
   props: {
     contacts: Array,
   },
