@@ -1,128 +1,38 @@
 <template>
-  <div>
-    <div class="modal-card" v-if="!isEditing">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Contact Details</p>
-      </header>
-      <section class="modal-card-body">
-        <media-item v-bind:title="fullName()" icon="fas fa-user"></media-item>
-        <media-item title="Date of Birth" icon="fas fa-birthday-cake">
-          <p>{{ contact.date_of_birth | formatDate }}</p>
-        </media-item>
-        <media-item title="Email Addresses" icon="fas fa-envelope">
-          <ul>
-            <li v-for="email in contact.emails" v-bind:key="email">
-              <a v-bind:href="'mailto:' + email" v-bind:title="'Send a message to ' + email">{{ email }}</a>
-            </li>
-          </ul>
-        </media-item>
-        <media-item title="Phone Numbers" icon="fas fa-phone">
-          <ul>
-            <li v-for="phone in contact.phone_numbers" v-bind:key="phone">
-              <a v-bind:href="'tel:' + phone">{{ phone }}</a>
-            </li>
-          </ul>
-        </media-item>
-        <media-item title="Addresses" icon="fas fa-map-marker-alt">
-          <media-item v-for="(address, index) in contact.addresses" v-bind:key="index" v-bind:noBorder="index === 0">
-            <p>
-              {{ address.address }} - {{ address.city }}<br/>
-              {{ address.state }}, {{ address.country }}<br/>
-              {{ address.zip_code }}
-            </p>
-          </media-item>
-          <media-item v-if="contact && contact.addresses && contact.addresses.length > 0">
-            <mapbox
-                :access-token="mapBoxToken"
-                :map-options="mapBoxOptions"
-                @map-load="mapLoaded">
-            </mapbox>
-          </media-item>
-        </media-item>
-      </section>
-      <footer class="modal-card-foot">
-        <button class="button" type="button" @click="$parent.close()">Close</button>
-        <button class="button is-primary" @click="isEditing = !isEditing">Update</button>
-      </footer>
-      <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
-    </div>
-    <div class="modal-card" v-if="isEditing">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Edit Contact</p>
-      </header>
-      <section class="modal-card-body">
-        <form action="">
-          <b-field label="ID">
-            <b-input
-                type="text"
-                :value="contact.id"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-
-          <b-field label="First name">
-            <b-input
-                type="text"
-                :value="contact.first_name"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-
-          <b-field label="Last name">
-            <b-input
-                type="text"
-                :value="contact.last_name"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-
-          <b-field label="Date of Birth">
-            <b-input
-                type="text"
-                :value="contact.date_of_birth"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-
-          <b-field label="Phone Number" v-for="phone in contact.phone_numbers" :key="phone">
-            <b-input
-                type="text"
-                :value="phone"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-
-          <b-field label="Email" v-for="email in contact.emails" :key="email">
-            <b-input
-                type="email"
-                :value="email"
-                placeholder="Your id"
-                required>
-            </b-input>
-          </b-field>
-        </form>
-      </section>
-      <footer class="modal-card-foot">
-        <button class="button" type="button" @click="$parent.close()">Close</button>
-        <button class="button is-primary" @click="isEditing = !isEditing">Update</button>
-      </footer>
-      <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
-    </div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">{{ isEditing ? 'Edit Contact' : 'Contact Details' }}</p>
+      <button
+          class="button is-primary is-pulled-right"
+          aria-label="Edit profile"
+          v-bind:class="{'is-loading' : isSaving}"
+          @click="saveForm"
+          v-if="isEditing">
+        Save
+      </button>
+      <button
+          class="button is-pulled-right"
+          title="Edit Profile"
+          aria-label="Edit profile"
+          v-if="!isEditing"
+          @click="isEditing = !isEditing">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+    </header>
+    <section class="modal-card-body">
+      <contact-info v-bind:contact="contact" v-if="!isEditing"/>
+      <contact-form v-bind:contact="contact" v-if="isEditing"/>
+    </section>
   </div>
 </template>
 
 <script>
-import Mapbox from 'mapbox-gl-vue';
-import MediaItem from '@/components/base/MediaItem.vue';
+import ContactInfo from '@/components/contacts/ContactInfo.vue';
+import ContactForm from '@/components/contacts/ContactForm.vue';
 
 export default {
   name: 'ContactModal',
-  components: { MediaItem, Mapbox },
+  components: { ContactForm, ContactInfo },
   props: {
     contact: {
       id: Number,
@@ -136,81 +46,19 @@ export default {
   },
   data() {
     return {
-      isEditing: false,
-      isLoading: false,
-      mapBoxToken:
-        'pk.eyJ1IjoiZWx0b252cyIsImEiOiJjam5xNXpkYWIwcW5pM2tuNTdnNDBwNm1iIn0.1tKc9Kel5r8l4_7J6WmlCA',
-      mapBoxOptions: {
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v10',
-        center: [-96, 37.8],
-        zoom: 3,
-      },
-      addressesCoordinates: [],
-      mapBoxLayerLayout: {
-        'icon-image': 'circle-15',
-      },
+      isEditing: true,
+      isSaving: false,
     };
   },
   methods: {
-    fullName() {
-      return `${this.contact.first_name} ${this.contact.last_name}`;
-    },
-    formattedAddress(address) {
-      return `${address.address}, ${address.city} - ${address.state},
-      ${address.country}. ${address.zip_code}`;
-    },
-    addCoordinatesToMap(map, coordinates) {
-      map.addLayer({
-        id: coordinates.toString(),
-        type: 'symbol',
-        source: {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates,
-                },
-              },
-            ],
-          },
-        },
-        layout: this.mapBoxLayerLayout,
-      });
-      this.addressesCoordinates.push(coordinates);
-      map.fitBounds(this.addressesCoordinates, { padding: 40 });
-    },
-    getCoordinatesFromAddress(map) {
-      this.addressesCoordinates = [];
-      this.contact.addresses.forEach((address) => {
-        const encodedAddress = encodeURI(this.formattedAddress(address));
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?limit=1&access_token=${
-          this.mapBoxToken
-        }`;
-        this.$http.get(url).then(
-          (response) => {
-            if (response.body.features.length > 0) {
-              this.addCoordinatesToMap(map, response.body.features[0].center);
-            }
-          },
-          () => {},
-        );
-      });
-    },
-    mapLoaded(map) {
-      this.getCoordinatesFromAddress(map);
+    saveForm() {
+      this.isSaving = true;
+      this.isEditing = !this.isEditing;
+      this.isSaving = false;
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-#map {
-  width: 100%;
-  height: 300px;
-}
 </style>
