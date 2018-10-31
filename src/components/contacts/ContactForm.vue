@@ -15,91 +15,15 @@
             grouped>
         </b-datepicker>
       </b-field>
-
       <hr>
-
       <!-- Email Addresses Section -->
       <multiple-email-field :contactId="contact.id" :emailList="contact.emails"/>
       <hr>
-
       <!-- Phone Numbers Section -->
       <multiple-phone-field :contactId="contact.id" :phoneList="contact.phone_numbers"/>
       <hr>
-
       <!-- Addresses Section -->
-      <label class="label">Addresses</label>
-      <section class="tile is-vertical notification"
-               v-for="(address, index) in addresses"
-               v-bind:key="'address_input' + index">
-        <b-field label="Address" expanded horizontal>
-          <b-input
-              placeholder="Address"
-              type="text"
-              :disabled="address.isLoading || address.isSaving"
-              v-model="address.address"
-              v-on:input="onAddressChanged(address, index)">
-          </b-input>
-        </b-field>
-        <b-field label="City" expanded horizontal>
-          <b-input
-              placeholder="City"
-              type="text"
-              :disabled="address.isLoading || address.isSaving"
-              v-model="address.city"
-              v-on:input="onAddressChanged(address, index)">
-          </b-input>
-        </b-field>
-        <b-field label="State" expanded horizontal>
-          <b-input
-              placeholder="State"
-              type="text"
-              :disabled="address.isLoading || address.isSaving"
-              v-model="address.state"
-              v-on:input="onAddressChanged(address, index)">
-          </b-input>
-        </b-field>
-        <b-field label="Country" expanded horizontal>
-          <b-input
-              placeholder="Country"
-              type="text"
-              :disabled="address.isLoading || address.isSaving"
-              v-model="address.country"
-              v-on:input="onAddressChanged(address, index)">
-          </b-input>
-        </b-field>
-        <b-field label="Zip Code" expanded horizontal>
-          <b-input
-              required
-              placeholder="Zip Code"
-              type="text"
-              :disabled="address.isLoading || address.isSaving"
-              v-model="address.zipCode"
-              v-on:input="onAddressChanged(address, index)">
-          </b-input>
-        </b-field>
-        <div class="action-buttons has-text-right">
-          <button
-              class="button is-danger"
-              v-bind:class="{'is-loading' : address.isDeleting}"
-              @click.prevent="removeAddress(address, index)">
-            <i class="fas fa-times squared"></i>&nbsp; Remove Address
-          </button>
-          <button
-              class="button is-primary"
-              v-bind:class="{'is-loading' : address.isSaving}"
-              @click.prevent="sendAddress(address, index)"
-              v-bind:disabled="!canSaveAddress(address)">
-            <i class="fas fa-check squared"></i>&nbsp; Save Address
-          </button>
-        </div>
-      </section>
-      <button
-          class="button"
-          v-bind:disabled="!canAddAddress()"
-          @click.prevent="addAddress">
-        Add address &nbsp;<i class="fas fa-plus"></i>
-      </button>
-
+      <multiple-address-field :contactId="contact.id" :addressList="contact.addresses"/>
     </form>
     <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
   </div>
@@ -108,10 +32,11 @@
 <script>
 import MultipleEmailField from '@/components/base/MultipleEmailField.vue';
 import MultiplePhoneField from '@/components/base/MultiplePhoneField.vue';
+import MultipleAddressField from '@/components/base/MultipleAddressField.vue';
 
 export default {
   name: 'ContactForm',
-  components: { MultiplePhoneField, MultipleEmailField },
+  components: { MultipleAddressField, MultiplePhoneField, MultipleEmailField },
   props: {
     contact: {
       id: Number,
@@ -150,108 +75,6 @@ export default {
         position: 'is-bottom',
         type: 'is-danger',
       });
-    },
-    // Address related methods
-    canAddAddress() {
-      return this.addresses.filter(a => a.isNew).length === 0;
-    },
-    addAddress() {
-      const emptyAddress = {
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        zipCode: '',
-        isNew: true,
-        wasChanged: false,
-        isSaving: false,
-        isDeleting: false,
-      };
-      this.addresses.push(emptyAddress);
-    },
-    canSaveAddress: address =>
-      address.address &&
-      address.city &&
-      address.state &&
-      address.country &&
-      address.zipCode &&
-      (address.isNew || address.wasChanged),
-    removeAddress(address, index) {
-      const myAddress = address;
-      const addressId = this.contact.addresses[index].id;
-      if (address.isNew) {
-        // Just delete from UI
-        this.$delete(this.addresses, index);
-      } else if (addressId) {
-        myAddress.isDeleting = true;
-        const url = `contacts/${this.contact.id}/addresses/${addressId}`;
-        this.$http.delete(url).then(
-          () => {
-            myAddress.isDeleting = false;
-            this.$delete(this.addresses, index);
-            this.$delete(this.contact.addresses, index);
-          },
-          () => {
-            myAddress.isDeleting = false;
-            this.showErrorMessage('This address cannot be deleted!');
-          },
-        );
-      }
-    },
-    onAddressChanged(address, index) {
-      const newAddress = address;
-      const oldAddress = this.contact.addresses[index];
-      newAddress.wasChanged =
-        newAddress.address !== oldAddress.address ||
-        newAddress.city !== oldAddress.city ||
-        newAddress.state !== oldAddress.state ||
-        newAddress.country !== oldAddress.country ||
-        newAddress.zipCode !== oldAddress.zipCode;
-    },
-    sendAddress(address, index) {
-      if (!this.canSaveAddress(address)) {
-        return;
-      }
-      const myAddress = address;
-      const addressObj = {
-        address: myAddress.address,
-        city: myAddress.city,
-        state: myAddress.state,
-        country: myAddress.country,
-        zip_code: myAddress.zipCode,
-      };
-      myAddress.isSaving = true;
-      if (myAddress.isNew) {
-        const url = `contacts/${this.contact.id}/addresses`;
-        this.$http.post(url, addressObj).then(
-          (response) => {
-            myAddress.isSaving = false;
-            myAddress.isNew = false;
-            myAddress.wasChanged = false;
-            this.contact.addresses.push(response.body);
-          },
-          () => {
-            myAddress.isSaving = false;
-            this.showErrorMessage('This address cannot be saved.');
-          },
-        );
-      } else {
-        const url = `contacts/${this.contact.id}/addresses/${
-          this.contact.addresses[index].id
-        }`;
-        this.$http.put(url, addressObj).then(
-          (response) => {
-            myAddress.isSaving = false;
-            myAddress.isNew = false;
-            myAddress.wasChanged = false;
-            this.contact.addresses[index] = response.body;
-          },
-          () => {
-            myAddress.isSaving = false;
-            this.showErrorMessage('This address cannot be updated.');
-          },
-        );
-      }
     },
   },
 };
