@@ -19,43 +19,7 @@
       <hr>
 
       <!-- Email Addresses Section -->
-      <label class="label">Email Addresses</label>
-      <b-field
-          grouped
-          v-for="(email, index) in emailAddresses"
-          v-bind:key="'email_input' + index">
-        <b-input
-            placeholder="Email Address"
-            type="email"
-            :disabled="email.isLoading || email.isSaving"
-            v-model="email.email"
-            v-on:input="onEmailChanged(email, index)"
-            expanded>
-        </b-input>
-        <p class="control action-buttons">
-          <button
-              class="button is-danger"
-              v-bind:class="{'is-loading' : email.isDeleting}"
-              :disabled="!canDeleteEmail(email)"
-              @click.prevent="removeEmail(email, index)">
-            <i class="fas fa-times squared"></i>
-          </button>
-          <button
-              class="button is-primary"
-              v-bind:class="{'is-loading' : email.isSaving}"
-              @click.prevent="sendEmail(email, index)"
-              v-bind:disabled="!canSaveEmail(email)">
-            <i class="fas fa-check squared"></i>
-          </button>
-        </p>
-      </b-field>
-      <button
-          class="button"
-          v-bind:disabled="!canAddEmail()"
-          @click.prevent="addEmail">
-        Add email &nbsp;<i class="fas fa-plus"></i>
-      </button>
-
+      <multiple-email-field :contactId="contact.id" :emailList="contact.emails"/>
       <hr>
 
       <!-- Phone Numbers Section -->
@@ -178,8 +142,11 @@
 </template>
 
 <script>
+import MultipleEmailField from '@/components/base/MultipleEmailField.vue';
+
 export default {
   name: 'ContactForm',
+  components: { MultipleEmailField },
   props: {
     contact: {
       id: Number,
@@ -199,13 +166,6 @@ export default {
       maxDate: today,
       phoneNumbers: this.contact.phone_numbers.map(phone => ({
         phone,
-        isNew: false,
-        wasChanged: false,
-        isSaving: false,
-        isDeleting: false,
-      })),
-      emailAddresses: this.contact.emails.map(email => ({
-        email,
         isNew: false,
         wasChanged: false,
         isSaving: false,
@@ -233,90 +193,6 @@ export default {
         type: 'is-danger',
       });
     },
-    // Email related methods
-    canAddEmail() {
-      return this.emailAddresses.filter(e => e.isNew).length === 0;
-    },
-    addEmail() {
-      const emptyEmail = {
-        email: '',
-        isNew: true,
-        wasChanged: false,
-        isSaving: false,
-        isDeleting: false,
-      };
-      this.emailAddresses.push(emptyEmail);
-    },
-    canDeleteEmail(email) {
-      // Has at least 2 saved emails or Is a new and unsaved email
-      return (
-        this.emailAddresses.filter(e => !e.isNew).length > 1 || email.isNew
-      );
-    },
-    canSaveEmail: email => email.email && (email.isNew || email.wasChanged),
-    removeEmail(email, index) {
-      const myEmail = email;
-      if (email.isNew) {
-        // Just delete from UI
-        this.$delete(this.emailAddresses, index);
-      } else if (this.emailAddresses.filter(e => !e.isNew).length > 1) {
-        myEmail.isDeleting = true;
-        const url = `contacts/${this.contact.id}/emails/${email.email}`;
-        this.$http.delete(url).then(
-          () => {
-            myEmail.isDeleting = false;
-            this.$delete(this.emailAddresses, index);
-            this.$delete(this.contact.emails, index);
-          },
-          () => {
-            myEmail.isDeleting = false;
-            this.showErrorMessage('This email cannot be deleted!');
-          },
-        );
-      }
-    },
-    onEmailChanged(email, index) {
-      const myEmail = email;
-      myEmail.wasChanged = myEmail.email !== this.contact.emails[index];
-    },
-    sendEmail(email, index) {
-      if (!this.canSaveEmail(email)) {
-        return;
-      }
-      const myEmail = email;
-      myEmail.isSaving = true;
-      if (email.isNew) {
-        const url = `contacts/${this.contact.id}/emails`;
-        this.$http.post(url, { email: email.email }).then(
-          () => {
-            myEmail.isSaving = false;
-            myEmail.isNew = false;
-            myEmail.wasChanged = false;
-            this.contact.emails.push(myEmail.email);
-          },
-          () => {
-            myEmail.isSaving = false;
-            this.showErrorMessage('This email cannot be saved.');
-          },
-        );
-      } else {
-        const url = `contacts/${this.contact.id}/emails/${
-          this.contact.emails[index]
-        }`;
-        this.$http.put(url, { email: email.email }).then(
-          () => {
-            myEmail.isSaving = false;
-            myEmail.isNew = false;
-            myEmail.wasChanged = false;
-            this.contact.emails[index] = myEmail.email;
-          },
-          () => {
-            myEmail.isSaving = false;
-            this.showErrorMessage('This email cannot be updated.');
-          },
-        );
-      }
-    },
     // Phone related methods
     canAddPhone() {
       return this.phoneNumbers.filter(p => p.isNew).length === 0;
@@ -333,9 +209,7 @@ export default {
     },
     canDeletePhone(phone) {
       // Has at least 2 saved phones or Is a new and unsaved phone
-      return (
-        this.phoneNumbers.filter(p => !p.isNew).length > 1 || phone.isNew
-      );
+      return this.phoneNumbers.filter(p => !p.isNew).length > 1 || phone.isNew;
     },
     canSavePhone: phone => phone.phone && (phone.isNew || phone.wasChanged),
     removePhone(phone, index) {
@@ -506,17 +380,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.action-buttons .button {
-  margin-right: 10px;
-
-  &:last-child {
-    margin-right: 0;
-  }
-}
-
-.squared {
-  width: 15px;
-}
-</style>

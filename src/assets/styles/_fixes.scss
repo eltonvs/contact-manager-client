@@ -5,3 +5,15 @@
 canvas.mapboxgl-canvas {
   left: 0;
 }
+
+.action-buttons .button {
+  margin-right: 10px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.squared {
+  width: 15px;
+}
