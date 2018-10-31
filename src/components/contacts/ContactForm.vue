@@ -54,17 +54,6 @@ export default {
       isLoading: false,
       date: new Date(this.contact.date_of_birth),
       maxDate: today,
-      addresses: this.contact.addresses.map(address => ({
-        address: address.address,
-        city: address.city,
-        state: address.state,
-        country: address.country,
-        zipCode: address.zip_code,
-        isNew: false,
-        wasChanged: false,
-        isSaving: false,
-        isDeleting: false,
-      })),
     };
   },
   methods: {
