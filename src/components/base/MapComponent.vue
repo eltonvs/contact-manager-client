@@ -53,13 +53,13 @@ export default {
     },
     getCoordinatesFromAddress(map) {
       this.addressesCoordinates = [];
-      this.addresses.forEach((address) => {
+      this.addresses.forEach(address => {
         const encodedAddress = encodeURI(address);
         const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?limit=1&access_token=${
           this.mapBoxToken
         }`;
         this.$http.get(url).then(
-          (response) => {
+          response => {
             if (
               response.body.features.length > 0 &&
               response.body.features[0].center.length > 0

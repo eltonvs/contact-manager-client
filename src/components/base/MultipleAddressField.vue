@@ -157,7 +157,7 @@ export default {
       myAddress.isSaving = true;
       if (myAddress.isNew) {
         this.$http.post(baseUrl, addressObj).then(
-          (response) => {
+          response => {
             myAddress.isSaving = false;
             myAddress.isNew = false;
             myAddress.wasChanged = false;
@@ -168,7 +168,7 @@ export default {
       } else {
         const url = `${baseUrl}/${this.addressList[index].id}`;
         this.$http.put(url, addressObj).then(
-          (response) => {
+          response => {
             myAddress.isSaving = false;
             myAddress.isNew = false;
             myAddress.wasChanged = false;

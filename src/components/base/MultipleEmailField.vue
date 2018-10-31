@@ -125,7 +125,9 @@ export default {
     saveError(email) {
       const myEmail = email;
       myEmail.isSaving = false;
-      this.$parent.showErrorMessage(`The email "${myEmail.email}" cannot be saved.`);
+      this.$parent.showErrorMessage(
+        `The email "${myEmail.email}" cannot be saved.`,
+      );
     },
   },
 };

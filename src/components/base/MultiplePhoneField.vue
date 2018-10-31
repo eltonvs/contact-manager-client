@@ -123,7 +123,9 @@ export default {
     saveError(phone) {
       const myPhone = phone;
       myPhone.isSaving = false;
-      this.$parent.showErrorMessage(`The phone "${myPhone.phone}" cannot be saved.`);
+      this.$parent.showErrorMessage(
+        `The phone "${myPhone.phone}" cannot be saved.`,
+      );
     },
   },
 };
