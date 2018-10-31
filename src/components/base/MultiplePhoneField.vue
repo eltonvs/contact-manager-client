@@ -1,0 +1,130 @@
+<template>
+  <div>
+    <label class="label">Phone Numbers</label>
+    <b-field
+        grouped
+        v-for="(phone, index) in phoneNumbers"
+        :key="'phone_input' + index">
+      <b-input
+          placeholder="Phone Number"
+          type="tel"
+          v-model="phone.phone"
+          :disabled="phone.isLoading || phone.isSaving"
+          @input="onChanged(phone, index)"
+          expanded>
+      </b-input>
+      <p class="control action-buttons">
+        <button
+            class="button is-danger"
+            :class="{'is-loading' : phone.isDeleting}"
+            :disabled="!canRemove(phone)"
+            @click.prevent="remove(phone, index)">
+          <i class="fas fa-times squared"></i>
+        </button>
+        <button
+            class="button is-primary"
+            :class="{'is-loading' : phone.isSaving}"
+            :disabled="!canSave(phone)"
+            @click.prevent="save(phone, index)">
+          <i class="fas fa-check squared"></i>
+        </button>
+      </p>
+    </b-field>
+    <button
+        class="button"
+        :disabled="!canAdd()"
+        @click.prevent="add">
+      Add phone &nbsp;<i class="fas fa-plus"></i>
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'MultiplePhoneField',
+  props: { contactId: Number, phoneList: Array },
+  data() {
+    return {
+      phoneNumbers: this.phoneList.map(p => this.createPhoneObject(p, false)),
+    };
+  },
+  methods: {
+    createPhoneObject: (phone, isNew = true) => ({
+      phone,
+      isNew,
+      wasChanged: false,
+      isSaving: false,
+      isDeleting: false,
+    }),
+    onChanged(phone, index) {
+      const myPhone = phone;
+      myPhone.wasChanged = myPhone.phone !== this.phoneList[index];
+    },
+    canAdd() {
+      return this.phoneNumbers.filter(p => p.isNew).length === 0;
+    },
+    canRemove(phone) {
+      return this.phoneNumbers.filter(p => !p.isNew).length > 1 || phone.isNew;
+    },
+    canSave: phone => phone.phone && (phone.isNew || phone.wasChanged),
+    add() {
+      this.phoneNumbers.push(this.createPhoneObject(''));
+    },
+    remove(phone, index) {
+      const myPhone = phone;
+      if (!this.canRemove(myPhone)) return;
+      if (myPhone.isNew) {
+        // Just delete from UI
+        this.$delete(this.phoneNumbers, index);
+      } else {
+        myPhone.isDeleting = true;
+        const url = `contacts/${this.contactId}/phone_numbers/${myPhone.phone}`;
+        this.$http.delete(url).then(
+          () => {
+            myPhone.isDeleting = false;
+            this.$delete(this.phoneNumbers, index);
+            this.$delete(this.phoneList, index);
+          },
+          () => {
+            myPhone.isDeleting = false;
+            this.$parent.showErrorMessage('This phone cannot be deleted!');
+          },
+        );
+      }
+    },
+    save(phone, index) {
+      if (!this.canSave(phone)) return;
+      const baseUrl = `contacts/${this.contactId}/phone_numbers`;
+      const myPhone = phone;
+      const phoneObj = { phone: myPhone.phone };
+      myPhone.isSaving = true;
+      if (phone.isNew) {
+        this.$http.post(baseUrl, phoneObj).then(
+          () => {
+            myPhone.isSaving = false;
+            myPhone.isNew = false;
+            myPhone.wasChanged = false;
+            this.phoneList.push(myPhone.phone);
+          },
+          () => this.saveError(myPhone),
+        );
+      } else {
+        this.$http.put(`${baseUrl}/${this.phoneList[index]}`, phoneObj).then(
+          () => {
+            myPhone.isSaving = false;
+            myPhone.isNew = false;
+            myPhone.wasChanged = false;
+            this.phoneList[index] = myPhone.phone;
+          },
+          () => this.saveError(myPhone),
+        );
+      }
+    },
+    saveError(phone) {
+      const myPhone = phone;
+      myPhone.isSaving = false;
+      this.$parent.showErrorMessage(`The phone "${myPhone.phone}" cannot be saved.`);
+    },
+  },
+};
+</script>
