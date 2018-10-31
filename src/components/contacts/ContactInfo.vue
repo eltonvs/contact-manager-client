@@ -19,7 +19,10 @@
       </ul>
     </media-item>
     <media-item title="Addresses" icon="fas fa-map-marker-alt">
-      <media-item v-for="(address, index) in contact.addresses" v-bind:key="index" v-bind:noBorder="index === 0">
+      <media-item
+          v-for="(address, index) in contact.addresses"
+          v-bind:key="'address_item' + index"
+          v-bind:noBorder="index === 0">
         <p>
           {{ address.address }} - {{ address.city }}<br/>
           {{ address.state }}, {{ address.country }}<br/>
