@@ -30,11 +30,7 @@
         </p>
       </media-item>
       <media-item v-if="contact && contact.addresses && contact.addresses.length > 0">
-        <mapbox
-            :access-token="mapBoxToken"
-            :map-options="mapBoxOptions"
-            @map-load="mapLoaded">
-        </mapbox>
+        <map-component :addresses="contact.addresses.map(address => formattedAddress(address))"/>
       </media-item>
     </media-item>
     <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
@@ -42,12 +38,12 @@
 </template>
 
 <script>
-import Mapbox from 'mapbox-gl-vue';
 import MediaItem from '@/components/base/MediaItem.vue';
+import MapComponent from '@/components/base/MapComponent.vue';
 
 export default {
   name: 'ContactInfo',
-  components: { MediaItem, Mapbox },
+  components: { MediaItem, MapComponent },
   props: {
     contact: {
       id: Number,
@@ -62,16 +58,6 @@ export default {
   data() {
     return {
       isLoading: false,
-      mapBoxToken:
-        'pk.eyJ1IjoiZWx0b252cyIsImEiOiJjam5xNXpkYWIwcW5pM2tuNTdnNDBwNm1iIn0.1tKc9Kel5r8l4_7J6WmlCA',
-      mapBoxOptions: {
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v10',
-        center: [-96, 37.8],
-        zoom: 3,
-      },
-      addressesCoordinates: [],
-      mapBoxLayerLayout: { 'icon-image': 'circle-15' },
     };
   },
   methods: {
@@ -82,60 +68,6 @@ export default {
       return `${address.address}, ${address.city} - ${address.state},
       ${address.country}. ${address.zip_code}`;
     },
-    addCoordinatesToMap(map, coordinates) {
-      map.addLayer({
-        id: coordinates.toString(),
-        type: 'symbol',
-        source: {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates,
-                },
-              },
-            ],
-          },
-        },
-        layout: this.mapBoxLayerLayout,
-      });
-      this.addressesCoordinates.push(coordinates);
-      map.fitBounds(this.addressesCoordinates, { padding: 40 });
-    },
-    getCoordinatesFromAddress(map) {
-      this.addressesCoordinates = [];
-      this.contact.addresses.forEach((address) => {
-        const encodedAddress = encodeURI(this.formattedAddress(address));
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?limit=1&access_token=${
-          this.mapBoxToken
-        }`;
-        this.$http.get(url).then(
-          (response) => {
-            if (
-              response.body.features.length > 0 &&
-              response.body.features[0].center.length > 0
-            ) {
-              this.addCoordinatesToMap(map, response.body.features[0].center);
-            }
-          },
-          () => {},
-        );
-      });
-    },
-    mapLoaded(map) {
-      this.getCoordinatesFromAddress(map);
-    },
   },
 };
 </script>
-
-<style lang="scss" scoped>
-#map {
-  width: 100%;
-  height: 300px;
-}
-</style>
