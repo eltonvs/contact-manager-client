@@ -216,7 +216,15 @@ export default {
       handler(val) {
         const filtered = val.map(address => {
           // noinspection JSUnusedLocalSymbols
-          const { isSaving, isDeleting, isNew, wasChanged, ...data } = address;
+          const {
+            isSaving,
+            isDeleting,
+            isNew,
+            wasChanged,
+            zipCode,
+            ...data
+          } = address;
+          data.zip_code = zipCode;
           return data;
         });
         this.$emit('input', filtered);
