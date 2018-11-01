@@ -4,7 +4,7 @@
       <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
       <div class="columns">
         <section class="column">
-          <search-component @search="searchContacts"/>
+          <search-component v-model="searchString" @search="searchContacts"/>
           <div class="add-contact">
             <b-field>
               <p class="control">
@@ -64,6 +64,7 @@ export default {
       isLoading: false,
       isModalActive: false,
       isSearchResults: false,
+      searchString: '',
     };
   },
   methods: {
@@ -84,9 +85,10 @@ export default {
     addNewContact() {
       this.isModalActive = true;
     },
-    searchContacts(event) {
+    searchContacts() {
       this.isLoading = true;
-      this.$http.get('contacts/search', { params: { query: event } }).then(
+      const params = { params: { query: this.searchString } };
+      this.$http.get('contacts/search', params).then(
         response => {
           if (response.status === 200) {
             this.contacts = response.body;
@@ -101,6 +103,7 @@ export default {
       );
     },
     clearSearchResults() {
+      this.searchString = '';
       this.isSearchResults = false;
       this.loadContacts();
     },
