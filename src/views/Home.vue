@@ -13,14 +13,14 @@
           <div class="add-contact">
             <b-field>
               <p class="control">
-                <button class="button is-info is-pulled-right">
+                <button class="button is-info is-pulled-right" @click="addNewContact">
                   <i class="fas fa-user-plus"></i>&nbsp; Add new Contact
                 </button>
               </p>
             </b-field>
           </div>
           <div class="is-clearfix"></div>
-          <contacts-list v-bind:contacts="this.contacts"/>
+          <contacts-list :contacts="contacts"/>
         </section>
         <aside class="column is-one-third">
           <div id="birthdays-list">
@@ -38,27 +38,34 @@
         </aside>
       </div>
     </main>
+    <b-modal :active.sync="isModalActive" has-modal-card>
+      <add-contact-modal @success="loadContacts()"></add-contact-modal>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import Header from '@/components/layout/Header.vue';
 import ContactsList from '@/components/contacts/ContactsList.vue';
+import AddContactModal from '@/components/contacts/AddContactModal.vue';
 
 export default {
   name: 'home',
   components: {
     Header,
     ContactsList,
+    AddContactModal,
   },
   data() {
     return {
       contacts: [],
-      isLoading: true,
+      isLoading: false,
+      isModalActive: false,
     };
   },
   methods: {
     loadContacts() {
+      this.isLoading = true;
       this.$http.get('contacts').then(
         response => {
           if (response.status === 200) {
@@ -71,6 +78,9 @@ export default {
         },
       );
     },
+    addNewContact() {
+      this.isModalActive = true;
+    },
   },
   mounted() {
     this.loadContacts();
@@ -79,4 +89,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.add-contact {
+  margin-top: 30px;
+}
 </style>
