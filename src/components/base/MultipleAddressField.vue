@@ -146,7 +146,10 @@ export default {
     },
     remove(address, index) {
       const myAddress = address;
-      const addressId = this.addressList ? this.addressList[index].id : false;
+      const addressId =
+        this.addressList && this.addressList.length > index
+          ? this.addressList[index].id || false
+          : false;
       if (address.isNew) {
         // Just delete from UI
         this.$delete(this.addresses, index);

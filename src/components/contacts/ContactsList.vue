@@ -9,7 +9,7 @@
         @click="showModal(contact)"/>
 
     <b-modal :active.sync="isModalActive" has-modal-card>
-      <ContactModal v-bind:contact="modalProps"/>
+      <ContactModal v-bind:contact="modalProps" @deleted="contactDeleted"/>
     </b-modal>
   </div>
 </template>
@@ -35,10 +35,19 @@ export default {
       modalProps: {},
     };
   },
+  computed: {
+    contactIds() {
+      return this.contacts.map(c => c.id);
+    },
+  },
   methods: {
     showModal(contact) {
       this.modalProps = contact;
       this.isModalActive = true;
+    },
+    contactDeleted(event) {
+      const idx = this.contactIds.indexOf(event);
+      this.$delete(this.contacts, idx);
     },
   },
 };

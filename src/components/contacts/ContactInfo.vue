@@ -18,7 +18,10 @@
         </li>
       </ul>
     </media-item>
-    <media-item title="Addresses" icon="fas fa-map-marker-alt">
+    <media-item
+        title="Addresses"
+        icon="fas fa-map-marker-alt"
+        v-if="contact && contact.addresses && contact.addresses.length > 0">
       <media-item
           v-for="(address, index) in contact.addresses"
           v-bind:key="'address_item' + index"
@@ -29,9 +32,14 @@
           {{ address.zip_code }}
         </p>
       </media-item>
-      <media-item v-if="contact && contact.addresses && contact.addresses.length > 0">
+      <media-item>
         <map-component :addresses="contact.addresses.map(address => formattedAddress(address))"/>
       </media-item>
+    </media-item>
+    <media-item>
+      <div class="has-text-centered">
+        <button class="button is-danger" @click="confirmContactDeletion">Delete Contact</button>
+      </div>
     </media-item>
     <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
   </div>
@@ -67,6 +75,31 @@ export default {
     formattedAddress(address) {
       return `${address.address}, ${address.city} - ${address.state},
       ${address.country}. ${address.zip_code}`;
+    },
+    confirmContactDeletion() {
+      this.$dialog.confirm({
+        title: 'Deleting contact',
+        message:
+          'Are you sure you want to <b>delete</b> this contact? This action cannot be undone.',
+        confirmText: 'Delete contact',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: this.deleteContact,
+      });
+    },
+    deleteContact() {
+      this.isLoading = true;
+      const url = `contacts/${this.contact.id}`;
+      this.$http.delete(url).then(
+        () => {
+          this.isLoading = false;
+          this.$toast.open('Contact deleted!');
+          this.$emit('deleted', this.contact.id);
+        },
+        () => {
+          this.$parent.showErrorMessage('Error while deleting contact.');
+        },
+      );
     },
   },
 };
