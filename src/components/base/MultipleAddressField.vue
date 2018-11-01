@@ -7,6 +7,7 @@
         :key="'address_input' + index">
       <b-field label="Address" expanded horizontal>
         <b-input
+            required
             placeholder="Address"
             type="text"
             v-model="address.address"
@@ -16,6 +17,7 @@
       </b-field>
       <b-field label="City" expanded horizontal>
         <b-input
+            required
             placeholder="City"
             type="text"
             v-model="address.city"
@@ -25,6 +27,7 @@
       </b-field>
       <b-field label="State" expanded horizontal>
         <b-input
+            required
             placeholder="State"
             type="text"
             v-model="address.state"
@@ -34,6 +37,7 @@
       </b-field>
       <b-field label="Country" expanded horizontal>
         <b-input
+            required
             placeholder="Country"
             type="text"
             v-model="address.country"
@@ -48,6 +52,7 @@
             type="text"
             v-model="address.zipCode"
             :disabled="address.isLoading || address.isSaving"
+            @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -127,7 +132,7 @@ export default {
           },
           () => {
             myAddress.isDeleting = false;
-            this.showErrorMessage('This address cannot be deleted!');
+            this.$emit('error', 'This address cannot be deleted!');
           },
         );
       }
@@ -182,7 +187,7 @@ export default {
       // noinspection UnnecessaryLocalVariableJS
       const myAddress = address;
       myAddress.isSaving = false;
-      this.$parent.showErrorMessage('This address cannot be saved.');
+      this.$emit('error', 'This address cannot be saved.');
     },
   },
 };

@@ -7,8 +7,15 @@
           aria-label="Edit profile"
           v-bind:class="{'is-loading' : isSaving}"
           @click="saveForm"
-          v-if="isEditing">
+          v-if="isEditing && wasChanged">
         Save
+      </button>
+      <button
+          class="button is-pulled-right"
+          aria-label="Cancel"
+          @click="isEditing = !isEditing"
+          v-if="isEditing && !wasChanged">
+        Cancel
       </button>
       <button
           class="button is-pulled-right"
@@ -20,8 +27,8 @@
       </button>
     </header>
     <section class="modal-card-body">
-      <contact-info v-bind:contact="contact" v-if="!isEditing"/>
-      <contact-form v-bind:contact="contact" v-if="isEditing"/>
+      <contact-info :contact="contact" v-if="!isEditing"/>
+      <contact-form :contact="contact" v-model="contactInfo" v-if="isEditing"/>
     </section>
   </div>
 </template>
@@ -45,16 +52,65 @@ export default {
     },
   },
   data() {
+    const splitDate = this.contact.date_of_birth.split('-');
+    const dateOfBirth = new Date();
+    dateOfBirth.setFullYear(splitDate[0], splitDate[1] - 1, splitDate[2]);
     return {
-      isEditing: true,
+      contactInfo: {
+        firstName: this.contact.first_name,
+        lastName: this.contact.last_name,
+        dateOfBirth,
+      },
+      wasChanged: false,
+      isEditing: false,
       isSaving: false,
     };
   },
   methods: {
+    showErrorMessage(message) {
+      this.$toast.open({
+        message,
+        duration: 5000,
+        position: 'is-bottom',
+        type: 'is-danger',
+      });
+    },
     saveForm() {
       this.isSaving = true;
-      this.isEditing = !this.isEditing;
+      const contactObj = {
+        first_name: this.contactInfo.firstName,
+        last_name: this.contactInfo.lastName,
+        date_of_birth: this.dateToString(this.contactInfo.dateOfBirth),
+      };
+      this.$http.put(`contacts/${this.contact.id}`, contactObj).then(
+        response => {
+          this.isSaving = false;
+          this.contact.first_name = response.body.first_name;
+          this.contact.last_name = response.body.last_name;
+          this.contact.date_of_birth = response.body.date_of_birth;
+          this.isEditing = false;
+        },
+        () => this.saveError(),
+      );
+    },
+    dateToString: date =>
+      new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0],
+    saveError() {
       this.isSaving = false;
+      this.showErrorMessage('This contact cannot be saved.');
+    },
+  },
+  watch: {
+    contactInfo: {
+      handler(val) {
+        this.wasChanged =
+          val.firstName !== this.contact.first_name ||
+          val.lastName !== this.contact.last_name ||
+          this.dateToString(val.dateOfBirth) !== this.contact.date_of_birth;
+      },
+      deep: true,
     },
   },
 };

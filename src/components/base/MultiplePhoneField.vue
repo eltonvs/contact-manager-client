@@ -5,14 +5,17 @@
         grouped
         v-for="(phone, index) in phoneNumbers"
         :key="'phone_input' + index">
-      <b-input
-          placeholder="Phone Number"
-          type="tel"
-          v-model="phone.phone"
-          :disabled="phone.isLoading || phone.isSaving"
-          @input="onChanged(phone, index)"
-          expanded>
-      </b-input>
+      <b-field expanded>
+        <b-input
+            required
+            placeholder="Phone Number"
+            type="tel"
+            v-model="phone.phone"
+            :disabled="phone.isLoading || phone.isSaving"
+            @keydown.native.enter.prevent="save(phone, index)"
+            @input="onChanged(phone, index)">
+        </b-input>
+      </b-field>
       <p class="control action-buttons">
         <button
             class="button is-danger"
@@ -87,7 +90,7 @@ export default {
           },
           () => {
             myPhone.isDeleting = false;
-            this.$parent.showErrorMessage('This phone cannot be deleted!');
+            this.$emit('error', 'This phone cannot be deleted!');
           },
         );
       }
@@ -123,9 +126,7 @@ export default {
     saveError(phone) {
       const myPhone = phone;
       myPhone.isSaving = false;
-      this.$parent.showErrorMessage(
-        `The phone "${myPhone.phone}" cannot be saved.`,
-      );
+      this.$emit('error', `The phone "${myPhone.phone}" cannot be saved.`);
     },
   },
 };

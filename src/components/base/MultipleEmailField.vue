@@ -5,14 +5,17 @@
         grouped
         v-for="(email, index) in emailAddresses"
         :key="'email_input' + index">
-      <b-input
-          placeholder="Email Address"
-          type="email"
-          v-model="email.email"
-          :disabled="email.isLoading || email.isSaving"
-          @input="onChanged(email, index)"
-          expanded>
-      </b-input>
+      <b-field expanded>
+        <b-input
+            required
+            placeholder="Email Address"
+            type="email"
+            v-model="email.email"
+            :disabled="email.isLoading || email.isSaving"
+            @keydown.native.enter.prevent="save(email, index)"
+            @input="onChanged(email, index)">
+        </b-input>
+      </b-field>
       <p class="control action-buttons">
         <button
             class="button is-danger"
@@ -89,7 +92,7 @@ export default {
           },
           () => {
             myEmail.isDeleting = false;
-            this.$parent.showErrorMessage('This email cannot be deleted!');
+            this.$emit('error', 'This email cannot be deleted!');
           },
         );
       }
@@ -125,9 +128,7 @@ export default {
     saveError(email) {
       const myEmail = email;
       myEmail.isSaving = false;
-      this.$parent.showErrorMessage(
-        `The email "${myEmail.email}" cannot be saved.`,
-      );
+      this.$emit('error', `The email "${myEmail.email}" cannot be saved.`);
     },
   },
 };

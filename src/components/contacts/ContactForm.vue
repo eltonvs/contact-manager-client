@@ -1,29 +1,29 @@
 <template>
   <div>
-    <form action="">
+    <form @keydown.enter.prevent="">
       <b-field horizontal label="Name">
-        <b-input name="first-name" placeholder="First Name" v-model="contact.first_name" expanded></b-input>
-        <b-input name="last-name" placeholder="Last Name" v-model="contact.last_name" expanded></b-input>
+        <b-input name="first-name" placeholder="First Name" v-model="contactInfo.firstName" expanded></b-input>
+        <b-input name="last-name" placeholder="Last Name" v-model="contactInfo.lastName" expanded></b-input>
       </b-field>
 
       <b-field horizontal label="Date of Birth">
         <b-datepicker
             placeholder="Click to select..."
             icon="calendar"
-            v-model="date"
+            v-model="contactInfo.dateOfBirth"
             v-bind:max-date="maxDate"
             grouped>
         </b-datepicker>
       </b-field>
       <hr>
       <!-- Email Addresses Section -->
-      <multiple-email-field :contactId="contact.id" :emailList="contact.emails"/>
+      <multiple-email-field :contactId="contact.id" :emailList="contact.emails" @error="onError"/>
       <hr>
       <!-- Phone Numbers Section -->
-      <multiple-phone-field :contactId="contact.id" :phoneList="contact.phone_numbers"/>
+      <multiple-phone-field :contactId="contact.id" :phoneList="contact.phone_numbers" @error="onError"/>
       <hr>
       <!-- Addresses Section -->
-      <multiple-address-field :contactId="contact.id" :addressList="contact.addresses"/>
+      <multiple-address-field :contactId="contact.id" :addressList="contact.addresses" @error="onError"/>
     </form>
     <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
   </div>
@@ -47,23 +47,32 @@ export default {
       emails: Array,
       addresses: Array,
     },
+    value: {
+      firstName: String,
+      lastName: String,
+      dateOfBirth: Date,
+    },
   },
   data() {
     const today = new Date();
     return {
+      contactInfo: this.value,
+      dateOfBirth: new Date(this.value.date_of_birth),
       isLoading: false,
-      date: new Date(this.contact.date_of_birth),
       maxDate: today,
     };
   },
   methods: {
-    showErrorMessage(message) {
-      this.$toast.open({
-        message,
-        duration: 5000,
-        position: 'is-bottom',
-        type: 'is-danger',
-      });
+    onError(event) {
+      this.$parent.showErrorMessage(event);
+    },
+  },
+  watch: {
+    contactInfo: {
+      handler(val) {
+        this.$emit('input', val);
+      },
+      deep: true,
     },
   },
 };
