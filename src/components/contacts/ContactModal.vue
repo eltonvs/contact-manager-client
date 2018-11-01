@@ -27,7 +27,7 @@
       </button>
     </header>
     <section class="modal-card-body">
-      <contact-info :contact="contact" v-if="!isEditing"/>
+      <contact-info :contact="contact" v-if="!isEditing" @deleted="contactDeleted"/>
       <contact-form :contact="contact" v-model="contactInfo" v-if="isEditing"/>
     </section>
   </div>
@@ -75,6 +75,10 @@ export default {
         type: 'is-danger',
       });
     },
+    contactDeleted(event) {
+      this.$emit('deleted', event);
+      this.$parent.close();
+    },
     saveForm() {
       this.isSaving = true;
       const contactObj = {
@@ -88,6 +92,7 @@ export default {
           this.contact.first_name = response.body.first_name;
           this.contact.last_name = response.body.last_name;
           this.contact.date_of_birth = response.body.date_of_birth;
+          this.wasChanged = false;
           this.isEditing = false;
         },
         () => this.saveError(),

@@ -11,7 +11,7 @@
             placeholder="Email Address"
             type="email"
             v-model="email.email"
-            :disabled="email.isLoading || email.isSaving"
+            :disabled="isUpdating && (email.isLoading || email.isSaving)"
             @keydown.native.enter.prevent="save(email, index)"
             @input="onChanged(email, index)">
         </b-input>
@@ -28,6 +28,7 @@
             class="button is-primary"
             :class="{'is-loading' : email.isSaving}"
             :disabled="!canSave(email)"
+            v-if="isUpdating"
             @click.prevent="save(email, index)">
           <i class="fas fa-check squared"></i>
         </button>
@@ -45,10 +46,17 @@
 <script>
 export default {
   name: 'MultipleEmailField',
-  props: { contactId: Number, emailList: Array },
+  props: {
+    isUpdating: { type: Boolean, default: true },
+    value: Array,
+    contactId: Number,
+    emailList: Array,
+  },
   data() {
     return {
-      emailAddresses: this.emailList.map(e => this.createEmailObject(e, false)),
+      emailAddresses: this.isUpdating
+        ? this.emailList.map(e => this.createEmailObject(e, false))
+        : this.value.map(e => this.createEmailObject(e, true)),
     };
   },
   methods: {
@@ -60,18 +68,37 @@ export default {
       isDeleting: false,
     }),
     onChanged(email, index) {
+      if (!this.isUpdating) return;
       const myEmail = email;
       myEmail.wasChanged = myEmail.email !== this.emailList[index];
     },
+    isValid: email => {
+      const re = /\S+@\S+\.\S+/;
+      return email.email !== '' && re.test(email.email);
+    },
     canAdd() {
-      return this.emailAddresses.filter(e => e.isNew).length === 0;
+      return (
+        (this.isUpdating &&
+          this.emailAddresses.filter(e => e.isNew).length === 0) ||
+        (!this.isUpdating && this.emailAddresses.every(this.isValid))
+      );
     },
     canRemove(email) {
       return (
-        this.emailAddresses.filter(e => !e.isNew).length > 1 || email.isNew
+        (this.isUpdating &&
+          (this.emailAddresses.filter(e => !e.isNew).length > 1 ||
+            email.isNew)) ||
+        (!this.isUpdating &&
+          this.emailAddresses.filter(this.isValid).length > 1)
       );
     },
-    canSave: email => email.email && (email.isNew || email.wasChanged),
+    canSave(email) {
+      return (
+        this.isUpdating &&
+        this.isValid(email) &&
+        (email.isNew || email.wasChanged)
+      );
+    },
     add() {
       this.emailAddresses.push(this.createEmailObject(''));
     },
@@ -129,6 +156,15 @@ export default {
       const myEmail = email;
       myEmail.isSaving = false;
       this.$emit('error', `The email "${myEmail.email}" cannot be saved.`);
+    },
+  },
+  watch: {
+    emailAddresses: {
+      handler(val) {
+        const filtered = val.map(email => email.email);
+        this.$emit('input', filtered);
+      },
+      deep: true,
     },
   },
 };

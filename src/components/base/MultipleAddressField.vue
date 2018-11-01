@@ -11,7 +11,7 @@
             placeholder="Address"
             type="text"
             v-model="address.address"
-            :disabled="address.isLoading || address.isSaving"
+            :disabled="isUpdating && (address.isLoading || address.isSaving)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -21,7 +21,7 @@
             placeholder="City"
             type="text"
             v-model="address.city"
-            :disabled="address.isLoading || address.isSaving"
+            :disabled="isUpdating && (address.isLoading || address.isSaving)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -31,7 +31,7 @@
             placeholder="State"
             type="text"
             v-model="address.state"
-            :disabled="address.isLoading || address.isSaving"
+            :disabled="isUpdating && (address.isLoading || address.isSaving)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -41,7 +41,7 @@
             placeholder="Country"
             type="text"
             v-model="address.country"
-            :disabled="address.isLoading || address.isSaving"
+            :disabled="isUpdating && (address.isLoading || address.isSaving)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -51,7 +51,7 @@
             placeholder="Zip Code"
             type="text"
             v-model="address.zipCode"
-            :disabled="address.isLoading || address.isSaving"
+            :disabled="isUpdating && (address.isLoading || address.isSaving)"
             @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
@@ -67,6 +67,7 @@
             class="button is-primary"
             :class="{'is-loading' : address.isSaving}"
             :disabled="!canSave(address)"
+            v-if="isUpdating"
             @click.prevent="save(address, index)">
           <i class="fas fa-check squared"></i>&nbsp; Save Address
         </button>
@@ -84,10 +85,17 @@
 <script>
 export default {
   name: 'MultipleAddressField',
-  props: { contactId: Number, addressList: Array },
+  props: {
+    isUpdating: { type: Boolean, default: true },
+    value: Array,
+    contactId: Number,
+    addressList: Array,
+  },
   data() {
     return {
-      addresses: this.addressList.map(a => this.createAddressObject(a, false)),
+      addresses: this.isUpdating
+        ? this.addressList.map(a => this.createAddressObject(a, false))
+        : this.value.map(a => this.createAddressObject(a, true)),
     };
   },
   methods: {
@@ -102,22 +110,46 @@ export default {
       isSaving: false,
       isDeleting: false,
     }),
-    canAdd() {
-      return this.addresses.filter(a => a.isNew).length === 0;
+    onChanged(address, index) {
+      if (!this.isUpdating) return;
+      const newAddress = address;
+      const oldAddress = this.addressList[index];
+      newAddress.wasChanged =
+        oldAddress === undefined ||
+        newAddress.address !== oldAddress.address ||
+        newAddress.city !== oldAddress.city ||
+        newAddress.state !== oldAddress.state ||
+        newAddress.country !== oldAddress.country ||
+        newAddress.zipCode !== oldAddress.zipCode;
     },
-    add() {
-      this.addresses.push(this.createAddressObject());
-    },
-    canSave: address =>
+    isValid: address =>
       address.address &&
       address.city &&
       address.state &&
       address.country &&
-      address.zipCode &&
-      (address.isNew || address.wasChanged),
+      address.zipCode,
+    canAdd() {
+      return (
+        (this.isUpdating && this.addresses.filter(a => a.isNew).length === 0) ||
+        (!this.isUpdating && this.addresses.every(this.isValid))
+      );
+    },
+    canSave(address) {
+      return (
+        this.isUpdating &&
+        this.isValid(address) &&
+        (address.isNew || address.wasChanged)
+      );
+    },
+    add() {
+      this.addresses.push(this.createAddressObject());
+    },
     remove(address, index) {
       const myAddress = address;
-      const addressId = this.addressList[index].id;
+      const addressId =
+        this.addressList && this.addressList.length > index
+          ? this.addressList[index].id || false
+          : false;
       if (address.isNew) {
         // Just delete from UI
         this.$delete(this.addresses, index);
@@ -136,17 +168,6 @@ export default {
           },
         );
       }
-    },
-    onChanged(address, index) {
-      const newAddress = address;
-      const oldAddress = this.addressList[index];
-      newAddress.wasChanged =
-        oldAddress === undefined ||
-        newAddress.address !== oldAddress.address ||
-        newAddress.city !== oldAddress.city ||
-        newAddress.state !== oldAddress.state ||
-        newAddress.country !== oldAddress.country ||
-        newAddress.zipCode !== oldAddress.zipCode;
     },
     save(address, index) {
       if (!this.canSave(address)) return;
@@ -190,8 +211,24 @@ export default {
       this.$emit('error', 'This address cannot be saved.');
     },
   },
+  watch: {
+    addresses: {
+      handler(val) {
+        const filtered = val.map(address => {
+          // noinspection JSUnusedLocalSymbols
+          const { isSaving, isDeleting, isNew, wasChanged, ...data } = address;
+          return data;
+        });
+        this.$emit('input', filtered);
+      },
+      deep: true,
+    },
+  },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.action-buttons .button {
+  margin-top: 10px;
+}
 </style>
