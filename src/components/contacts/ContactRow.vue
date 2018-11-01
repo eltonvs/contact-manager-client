@@ -21,11 +21,6 @@ export default {
       emails: Array,
     },
   },
-  data() {
-    return {
-      profile_image: 'https://coswafe.com/img/static/blank.png',
-    };
-  },
   methods: {
     click(event) {
       this.$emit('click', event);

@@ -5,6 +5,8 @@ import Gravatar from 'vue-gravatar';
 
 import VueResource from 'vue-resource';
 
+import moment from 'moment';
+
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -23,6 +25,11 @@ Vue.http.options.emulateJSON = true;
 Vue.http.options.root = 'http://localhost:8000/contactmanager/v1/';
 const { http } = Vue;
 export default http;
+
+Vue.filter(
+  'formatDate',
+  value => (value ? moment(String(value)).format('MM/DD/YYYY') : ''),
+);
 
 new Vue({
   router,

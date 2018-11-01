@@ -1,92 +1,120 @@
 <template>
-  <form action="">
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Contact Details</p>
-      </header>
-      <section class="modal-card-body">
-        <b-field label="ID">
-          <b-input
-              type="text"
-              :value="id"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-
-        <b-field label="First name">
-          <b-input
-              type="text"
-              :value="first_name"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-
-        <b-field label="Last name">
-          <b-input
-              type="text"
-              :value="last_name"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-
-        <b-field label="Date of Birth">
-          <b-input
-              type="text"
-              :value="date_of_birth"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-
-        <b-field label="Phone Number" v-for="phone in phone_numbers" :key="phone">
-          <b-input
-              type="text"
-              :value="phone"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-
-        <b-field label="Email" v-for="email in emails" :key="email">
-          <b-input
-              type="email"
-              :value="email"
-              placeholder="Your id"
-              required>
-          </b-input>
-        </b-field>
-      </section>
-      <footer class="modal-card-foot">
-        <button class="button" type="button" @click="$parent.close()">Close</button>
-        <button class="button is-primary">Update</button>
-      </footer>
-      <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
-    </div>
-  </form>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">{{ isEditing ? 'Edit Contact' : 'Contact Details' }}</p>
+      <button
+          class="button is-primary is-pulled-right"
+          aria-label="Edit profile"
+          v-bind:class="{'is-loading' : isSaving}"
+          @click="saveForm"
+          v-if="isEditing && wasChanged">
+        Save
+      </button>
+      <button
+          class="button is-pulled-right"
+          aria-label="Cancel"
+          @click="isEditing = !isEditing"
+          v-if="isEditing && !wasChanged">
+        Cancel
+      </button>
+      <button
+          class="button is-pulled-right"
+          title="Edit Profile"
+          aria-label="Edit profile"
+          v-if="!isEditing"
+          @click="isEditing = !isEditing">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+    </header>
+    <section class="modal-card-body">
+      <contact-info :contact="contact" v-if="!isEditing"/>
+      <contact-form :contact="contact" v-model="contactInfo" v-if="isEditing"/>
+    </section>
+  </div>
 </template>
 
 <script>
+import ContactInfo from '@/components/contacts/ContactInfo.vue';
+import ContactForm from '@/components/contacts/ContactForm.vue';
+
 export default {
   name: 'ContactModal',
+  components: { ContactForm, ContactInfo },
   props: {
-    id: Number,
-    first_name: String,
-    last_name: String,
-    date_of_birth: String,
-    phone_numbers: Array,
-    emails: Array,
-    addresses: Array,
+    contact: {
+      id: Number,
+      first_name: String,
+      last_name: String,
+      date_of_birth: String,
+      phone_numbers: Array,
+      emails: Array,
+      addresses: Array,
+    },
   },
   data() {
+    const splitDate = this.contact.date_of_birth.split('-');
+    const dateOfBirth = new Date();
+    dateOfBirth.setFullYear(splitDate[0], splitDate[1] - 1, splitDate[2]);
     return {
-      isLoading: false,
+      contactInfo: {
+        firstName: this.contact.first_name,
+        lastName: this.contact.last_name,
+        dateOfBirth,
+      },
+      wasChanged: false,
+      isEditing: false,
+      isSaving: false,
     };
+  },
+  methods: {
+    showErrorMessage(message) {
+      this.$toast.open({
+        message,
+        duration: 5000,
+        position: 'is-bottom',
+        type: 'is-danger',
+      });
+    },
+    saveForm() {
+      this.isSaving = true;
+      const contactObj = {
+        first_name: this.contactInfo.firstName,
+        last_name: this.contactInfo.lastName,
+        date_of_birth: this.dateToString(this.contactInfo.dateOfBirth),
+      };
+      this.$http.put(`contacts/${this.contact.id}`, contactObj).then(
+        response => {
+          this.isSaving = false;
+          this.contact.first_name = response.body.first_name;
+          this.contact.last_name = response.body.last_name;
+          this.contact.date_of_birth = response.body.date_of_birth;
+          this.isEditing = false;
+        },
+        () => this.saveError(),
+      );
+    },
+    dateToString: date =>
+      new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split('T')[0],
+    saveError() {
+      this.isSaving = false;
+      this.showErrorMessage('This contact cannot be saved.');
+    },
+  },
+  watch: {
+    contactInfo: {
+      handler(val) {
+        this.wasChanged =
+          val.firstName !== this.contact.first_name ||
+          val.lastName !== this.contact.last_name ||
+          this.dateToString(val.dateOfBirth) !== this.contact.date_of_birth;
+      },
+      deep: true,
+    },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 </style>

@@ -60,7 +60,7 @@ export default {
   methods: {
     loadContacts() {
       this.$http.get('contacts').then(
-        (response) => {
+        response => {
           if (response.status === 200) {
             this.contacts = response.body;
           }

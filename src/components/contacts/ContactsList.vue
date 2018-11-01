@@ -4,12 +4,12 @@
 
     <contact-row
         v-for="contact of contacts"
-        :key="contact.id"
+        v-bind:key="contact.id"
         v-bind:contact="contact"
         @click="showModal(contact)"/>
 
     <b-modal :active.sync="isModalActive" has-modal-card>
-      <ContactModal v-bind="modalProps"/>
+      <ContactModal v-bind:contact="modalProps"/>
     </b-modal>
   </div>
 </template>
@@ -21,17 +21,18 @@ import ContactModal from '@/components/contacts/ContactModal.vue';
 
 export default {
   name: 'ContactsList',
-  components: { NoResults, ContactRow, ContactModal },
+  components: {
+    NoResults,
+    ContactRow,
+    ContactModal,
+  },
   props: {
     contacts: Array,
   },
   data() {
     return {
       isModalActive: false,
-      modalProps: {
-        email: 'evan@you.com',
-        password: 'testing',
-      },
+      modalProps: {},
     };
   },
   methods: {
