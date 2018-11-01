@@ -11,7 +11,7 @@
             placeholder="Phone Number"
             type="tel"
             v-model="phone.phone"
-            :disabled="phone.isLoading || phone.isSaving"
+            :disabled="isUpdating && (phone.isLoading || phone.isSaving)"
             @keydown.native.enter.prevent="save(phone, index)"
             @input="onChanged(phone, index)">
         </b-input>
@@ -28,6 +28,7 @@
             class="button is-primary"
             :class="{'is-loading' : phone.isSaving}"
             :disabled="!canSave(phone)"
+            v-if="isUpdating"
             @click.prevent="save(phone, index)">
           <i class="fas fa-check squared"></i>
         </button>
@@ -45,10 +46,17 @@
 <script>
 export default {
   name: 'MultiplePhoneField',
-  props: { contactId: Number, phoneList: Array },
+  props: {
+    isUpdating: { type: Boolean, default: true },
+    value: Array,
+    contactId: Number,
+    phoneList: Array,
+  },
   data() {
     return {
-      phoneNumbers: this.phoneList.map(p => this.createPhoneObject(p, false)),
+      phoneNumbers: this.isUpdating
+        ? this.phoneList.map(p => this.createPhoneObject(p, false))
+        : this.value.map(p => this.createPhoneObject(p, true)),
     };
   },
   methods: {
@@ -60,16 +68,33 @@ export default {
       isDeleting: false,
     }),
     onChanged(phone, index) {
+      if (!this.isUpdating) return;
       const myPhone = phone;
       myPhone.wasChanged = myPhone.phone !== this.phoneList[index];
     },
+    isValid: phone => phone.phone !== '',
     canAdd() {
-      return this.phoneNumbers.filter(p => p.isNew).length === 0;
+      return (
+        (this.isUpdating &&
+          this.phoneNumbers.filter(p => p.isNew).length === 0) ||
+        (!this.isUpdating && this.phoneNumbers.every(this.isValid))
+      );
     },
     canRemove(phone) {
-      return this.phoneNumbers.filter(p => !p.isNew).length > 1 || phone.isNew;
+      return (
+        (this.isUpdating &&
+          (this.phoneNumbers.filter(p => !p.isNew).length > 1 ||
+            phone.isNew)) ||
+        (!this.isUpdating && this.phoneNumbers.filter(this.isValid).length > 1)
+      );
     },
-    canSave: phone => phone.phone && (phone.isNew || phone.wasChanged),
+    canSave(phone) {
+      return (
+        this.isUpdating &&
+        this.isValid(phone) &&
+        (phone.isNew || phone.wasChanged)
+      );
+    },
     add() {
       this.phoneNumbers.push(this.createPhoneObject(''));
     },
@@ -127,6 +152,15 @@ export default {
       const myPhone = phone;
       myPhone.isSaving = false;
       this.$emit('error', `The phone "${myPhone.phone}" cannot be saved.`);
+    },
+  },
+  watch: {
+    phoneNumbers: {
+      handler(val) {
+        const filtered = val.map(phone => phone.phone);
+        this.$emit('input', filtered);
+      },
+      deep: true,
     },
   },
 };
