@@ -8,11 +8,12 @@
 
       <b-field horizontal label="Date of Birth">
         <b-datepicker
+            grouped
+            editable
             placeholder="Click to select..."
             icon="calendar"
             v-model="contactInfo.dateOfBirth"
-            v-bind:max-date="maxDate"
-            grouped>
+            :max-date="maxDate">
         </b-datepicker>
       </b-field>
       <hr>

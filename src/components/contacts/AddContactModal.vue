@@ -28,6 +28,7 @@
 
         <b-field horizontal label="Date of Birth">
           <b-datepicker
+              editable
               grouped
               placeholder="Click to select..."
               icon="calendar"
