@@ -56,7 +56,7 @@
         </p>
 
         <h3>Endpoints</h3>
-        <p>This API in on version <code>v1</code>, so his base url is <code>http://host:port/contactmanager/v1</code>.
+        <p>This API in on version <code>v1</code>, so its base url is <code>http://host:port/contactmanager/v1</code>.
         </p>
         <table class="table table-striped table-bordered">
           <thead>
