@@ -24,7 +24,7 @@
           <contacts-list :contacts="contacts" v-if="contacts.length > 0"/>
         </section>
         <aside class="column is-one-third">
-          <birthdays-component :key="contacts.length"/>
+          <birthdays-component :key="birthdaysKey"/>
         </aside>
       </div>
     </main>
@@ -59,6 +59,7 @@ export default {
       isModalActive: false,
       isSearchResults: false,
       searchString: '',
+      birthdaysKey: 0,
     };
   },
   methods: {
@@ -104,6 +105,14 @@ export default {
   },
   mounted() {
     this.loadContacts();
+  },
+  watch: {
+    contacts: {
+      handler() {
+        this.birthdaysKey += 1;
+      },
+      deep: true,
+    },
   },
 };
 </script>
