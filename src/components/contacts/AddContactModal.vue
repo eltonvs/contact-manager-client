@@ -98,9 +98,8 @@ export default {
         emails: this.contact.emails,
         addresses: this.contact.addresses,
       };
-      console.log(contactObj);
       this.$http
-        .post(`contacts/`, JSON.stringify(contactObj), {
+        .post(`contacts`, JSON.stringify(contactObj), {
           headers: { 'Content-Type': 'application/json' },
         })
         .then(
