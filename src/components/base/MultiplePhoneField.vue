@@ -72,7 +72,10 @@ export default {
       const myPhone = phone;
       myPhone.wasChanged = myPhone.phone !== this.phoneList[index];
     },
-    isValid: phone => phone.phone !== '',
+    isValid: phone => {
+      const re = /^\+(?:[0-9] ?){6,14}[0-9]$/;
+      return phone.phone !== '' && re.test(phone.phone);
+    },
     canAdd() {
       return (
         (this.isUpdating &&
@@ -134,7 +137,7 @@ export default {
             myPhone.wasChanged = false;
             this.phoneList.push(myPhone.phone);
           },
-          () => this.saveError(myPhone),
+          err => this.saveError(myPhone, err.body.phone),
         );
       } else {
         this.$http.put(`${baseUrl}/${this.phoneList[index]}`, phoneObj).then(
@@ -144,14 +147,18 @@ export default {
             myPhone.wasChanged = false;
             this.phoneList[index] = myPhone.phone;
           },
-          () => this.saveError(myPhone),
+          err => this.saveError(myPhone, err.body.phone),
         );
       }
     },
-    saveError(phone) {
+    saveError(phone, errors) {
       const myPhone = phone;
+      const errorsStr = errors.join(', ');
       myPhone.isSaving = false;
-      this.$emit('error', `The phone "${myPhone.phone}" cannot be saved.`);
+      this.$emit(
+        'error',
+        `The phone "${myPhone.phone}" cannot be saved: ${errorsStr}`,
+      );
     },
   },
   watch: {

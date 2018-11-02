@@ -138,7 +138,7 @@ export default {
             myEmail.wasChanged = false;
             this.emailList.push(myEmail.email);
           },
-          () => this.saveError(myEmail),
+          err => this.saveError(myEmail, err.body.email),
         );
       } else {
         this.$http.put(`${baseUrl}/${this.emailList[index]}`, emailObj).then(
@@ -148,14 +148,18 @@ export default {
             myEmail.wasChanged = false;
             this.emailList[index] = myEmail.email;
           },
-          () => this.saveError(myEmail),
+          err => this.saveError(myEmail, err.body.email),
         );
       }
     },
-    saveError(email) {
+    saveError(email, errors) {
       const myEmail = email;
+      const errorsStr = errors.join(', ');
       myEmail.isSaving = false;
-      this.$emit('error', `The email "${myEmail.email}" cannot be saved.`);
+      this.$emit(
+        'error',
+        `The email "${myEmail.email}" cannot be saved: ${errorsStr}`,
+      );
     },
   },
   watch: {

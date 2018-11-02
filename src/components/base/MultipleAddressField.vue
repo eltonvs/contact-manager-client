@@ -12,6 +12,7 @@
             type="text"
             v-model="address.address"
             :disabled="isUpdating && (address.isLoading || address.isSaving)"
+            @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -22,6 +23,7 @@
             type="text"
             v-model="address.city"
             :disabled="isUpdating && (address.isLoading || address.isSaving)"
+            @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -32,6 +34,7 @@
             type="text"
             v-model="address.state"
             :disabled="isUpdating && (address.isLoading || address.isSaving)"
+            @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -42,6 +45,7 @@
             type="text"
             v-model="address.country"
             :disabled="isUpdating && (address.isLoading || address.isSaving)"
+            @keydown.native.enter.prevent="save(address, index)"
             @input="onChanged(address, index)">
         </b-input>
       </b-field>
@@ -189,7 +193,7 @@ export default {
             myAddress.wasChanged = false;
             this.addressList.push(response.body);
           },
-          () => this.saveError(myAddress),
+          err => this.saveError(myAddress, err.body.address),
         );
       } else {
         const url = `${baseUrl}/${this.addressList[index].id}`;
@@ -200,15 +204,16 @@ export default {
             myAddress.wasChanged = false;
             this.addressList[index] = response.body;
           },
-          () => this.saveError(myAddress),
+          err => this.saveError(myAddress, err.body.address),
         );
       }
     },
-    saveError(address) {
+    saveError(address, errors) {
       // noinspection UnnecessaryLocalVariableJS
       const myAddress = address;
+      const errorsStr = errors.join(', ');
       myAddress.isSaving = false;
-      this.$emit('error', 'This address cannot be saved.');
+      this.$emit('error', `This address cannot be saved: ${errorsStr}`);
     },
   },
   watch: {
