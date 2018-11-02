@@ -15,7 +15,7 @@
           aria-label="Cancel"
           @click="isEditing = !isEditing"
           v-if="isEditing && !wasChanged">
-        Cancel
+        Back
       </button>
       <button
           class="button is-pulled-right"
