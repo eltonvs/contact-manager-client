@@ -1,6 +1,6 @@
 <template>
   <div id="birthdays-list">
-    <h2 class="title is-3"><i class="fas fa-birthday-cake"></i> Birthdays of the month</h2>
+    <h2 class="title is-4"><i class="fas fa-birthday-cake"></i> Birthdays of the month</h2>
     <no-results v-if="birthdays.length === 0"/>
     <div class="tile is-parent is-vertical" v-if="birthdays.length > 0">
       <article
