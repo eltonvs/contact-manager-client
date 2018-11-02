@@ -4,12 +4,7 @@
       <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
       <div class="columns">
         <section class="column">
-          <div id="search-area">
-            <b-field>
-              <b-input type="text" placeholder="Search by name, email, phone number..." expanded></b-input>
-              <p class="control"><button class="button is-dark"><i class="fas fa-search"></i></button></p>
-            </b-field>
-          </div>
+          <search-component v-model="searchString" @search="searchContacts"/>
           <div class="add-contact">
             <b-field>
               <p class="control">
@@ -18,6 +13,11 @@
                 </button>
               </p>
             </b-field>
+          </div>
+          <div class="add-contact" v-if="isSearchResults">
+            <button class="button is-pulled-left" @click="clearSearchResults">
+              <i class="fas fa-times"></i>&nbsp; Clear Search Results
+            </button>
           </div>
           <div class="is-clearfix"></div>
           <contacts-list :contacts="contacts"/>
@@ -46,6 +46,7 @@
 
 <script>
 import Header from '@/components/layout/Header.vue';
+import SearchComponent from '@/components/base/SearchComponent.vue';
 import ContactsList from '@/components/contacts/ContactsList.vue';
 import AddContactModal from '@/components/contacts/AddContactModal.vue';
 
@@ -53,6 +54,7 @@ export default {
   name: 'home',
   components: {
     Header,
+    SearchComponent,
     ContactsList,
     AddContactModal,
   },
@@ -61,6 +63,8 @@ export default {
       contacts: [],
       isLoading: false,
       isModalActive: false,
+      isSearchResults: false,
+      searchString: '',
     };
   },
   methods: {
@@ -80,6 +84,28 @@ export default {
     },
     addNewContact() {
       this.isModalActive = true;
+    },
+    searchContacts() {
+      this.isLoading = true;
+      const params = { params: { query: this.searchString } };
+      this.$http.get('contacts/search', params).then(
+        response => {
+          if (response.status === 200) {
+            this.contacts = response.body;
+            this.isSearchResults = true;
+          }
+          this.isLoading = false;
+        },
+        () => {
+          this.isLoading = false;
+          this.contacts = [];
+        },
+      );
+    },
+    clearSearchResults() {
+      this.searchString = '';
+      this.isSearchResults = false;
+      this.loadContacts();
     },
   },
   mounted() {
