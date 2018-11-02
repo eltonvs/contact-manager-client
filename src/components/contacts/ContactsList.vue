@@ -1,7 +1,5 @@
 <template>
   <div id="contacts-list">
-    <no-results v-if="contacts.length === 0"/>
-
     <contact-row
         v-for="contact of contacts"
         v-bind:key="contact.id"
@@ -15,14 +13,12 @@
 </template>
 
 <script>
-import NoResults from '@/components/base/NoResults.vue';
 import ContactRow from '@/components/contacts/ContactRow.vue';
 import ContactModal from '@/components/contacts/ContactModal.vue';
 
 export default {
   name: 'ContactsList',
   components: {
-    NoResults,
     ContactRow,
     ContactModal,
   },

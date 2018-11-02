@@ -20,21 +20,11 @@
             </button>
           </div>
           <div class="is-clearfix"></div>
-          <contacts-list :contacts="contacts"/>
+          <no-results message="No contact found" v-if="!isLoading && contacts.length === 0"/>
+          <contacts-list :contacts="contacts" v-if="contacts.length > 0"/>
         </section>
         <aside class="column is-one-third">
-          <div id="birthdays-list">
-            <h2 class="title"><i class="fas fa-birthday-cake"></i> Birthdays</h2>
-            <div class="contact level is-mobile" v-for="i in 10" :key="i">
-              <div class="contact__image level-right">
-                <img src="https://coswafe.com/img/static/blank.png" alt="Profile picture">
-              </div>
-              <div class="contact__info level-item is-size-5 is-size-6-mobile has-text-weight-semibold">
-                John Doe
-              </div>
-              <div class="contact__actions level-right"><i class="fas fa-eye"></i></div>
-            </div>
-          </div>
+          <birthdays-component :key="contacts.length"/>
         </aside>
       </div>
     </main>
@@ -47,16 +37,20 @@
 <script>
 import Header from '@/components/layout/Header.vue';
 import SearchComponent from '@/components/base/SearchComponent.vue';
+import NoResults from '@/components/base/NoResults.vue';
 import ContactsList from '@/components/contacts/ContactsList.vue';
 import AddContactModal from '@/components/contacts/AddContactModal.vue';
+import BirthdaysComponent from '@/components/contacts/BirthdaysComponent.vue';
 
 export default {
   name: 'home',
   components: {
     Header,
     SearchComponent,
+    NoResults,
     ContactsList,
     AddContactModal,
+    BirthdaysComponent,
   },
   data() {
     return {
