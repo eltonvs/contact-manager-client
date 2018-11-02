@@ -10,6 +10,8 @@
             required
             placeholder="Phone Number"
             type="tel"
+            minlength="7"
+            maxlength="20"
             v-model="phone.phone"
             :disabled="isUpdating && (phone.isLoading || phone.isSaving)"
             @keydown.native.enter.prevent="save(phone, index)"
