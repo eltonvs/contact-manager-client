@@ -75,7 +75,7 @@ export default {
       myPhone.wasChanged = myPhone.phone !== this.phoneList[index];
     },
     isValid: phone => {
-      const re = /^\+(?:[0-9] ?){6,14}[0-9]$/;
+      const re = /^[0-9 -+]+$/;
       return phone.phone !== '' && re.test(phone.phone);
     },
     canAdd() {
