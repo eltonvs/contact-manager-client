@@ -2,31 +2,58 @@
   <div>
     <form @keydown.enter.prevent="">
       <b-field horizontal label="Name">
-        <b-input name="first-name" placeholder="First Name" v-model="contactInfo.firstName" expanded></b-input>
-        <b-input name="last-name" placeholder="Last Name" v-model="contactInfo.lastName" expanded></b-input>
+        <b-input
+          name="first-name"
+          placeholder="First Name"
+          v-model="contactInfo.firstName"
+          expanded
+        ></b-input>
+        <b-input
+          name="last-name"
+          placeholder="Last Name"
+          v-model="contactInfo.lastName"
+          expanded
+        ></b-input>
       </b-field>
 
       <b-field horizontal label="Date of Birth">
         <b-datepicker
-            grouped
-            editable
-            placeholder="Click to select..."
-            icon="calendar"
-            v-model="contactInfo.dateOfBirth"
-            :max-date="maxDate">
+          grouped
+          editable
+          placeholder="Click to select..."
+          icon="calendar"
+          v-model="contactInfo.dateOfBirth"
+          :max-date="maxDate"
+        >
         </b-datepicker>
       </b-field>
-      <hr>
+      <hr />
       <!-- Email Addresses Section -->
-      <multiple-email-field :contactId="contact.id" :emailList="contact.emails" @error="onError"/>
-      <hr>
+      <multiple-email-field
+        :contactId="contact.id"
+        :emailList="contact.emails"
+        @error="onError"
+      />
+      <hr />
       <!-- Phone Numbers Section -->
-      <multiple-phone-field :contactId="contact.id" :phoneList="contact.phone_numbers" @error="onError"/>
-      <hr>
+      <multiple-phone-field
+        :contactId="contact.id"
+        :phoneList="contact.phone_numbers"
+        @error="onError"
+      />
+      <hr />
       <!-- Addresses Section -->
-      <multiple-address-field :contactId="contact.id" :addressList="contact.addresses" @error="onError"/>
+      <multiple-address-field
+        :contactId="contact.id"
+        :addressList="contact.addresses"
+        @error="onError"
+      />
     </form>
-    <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
+    <b-loading
+      :is-full-page="false"
+      :active.sync="isLoading"
+      :can-cancel="true"
+    ></b-loading>
   </div>
 </template>
 

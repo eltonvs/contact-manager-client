@@ -1,34 +1,43 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">{{ isEditing ? 'Edit Contact' : 'Contact Details' }}</p>
+      <p class="modal-card-title">
+        {{ isEditing ? 'Edit Contact' : 'Contact Details' }}
+      </p>
       <button
-          class="button is-primary is-pulled-right"
-          aria-label="Edit profile"
-          v-bind:class="{'is-loading' : isSaving}"
-          @click="saveForm"
-          v-if="isEditing && wasChanged">
+        class="button is-primary is-pulled-right"
+        aria-label="Edit profile"
+        v-bind:class="{ 'is-loading': isSaving }"
+        @click="saveForm"
+        v-if="isEditing && wasChanged"
+      >
         Save
       </button>
       <button
-          class="button is-pulled-right"
-          aria-label="Cancel"
-          @click="isEditing = !isEditing"
-          v-if="isEditing && !wasChanged">
+        class="button is-pulled-right"
+        aria-label="Cancel"
+        @click="isEditing = !isEditing"
+        v-if="isEditing && !wasChanged"
+      >
         Back
       </button>
       <button
-          class="button is-pulled-right"
-          title="Edit Profile"
-          aria-label="Edit profile"
-          v-if="!isEditing"
-          @click="isEditing = !isEditing">
+        class="button is-pulled-right"
+        title="Edit Profile"
+        aria-label="Edit profile"
+        v-if="!isEditing"
+        @click="isEditing = !isEditing"
+      >
         <i class="fas fa-pencil-alt"></i>
       </button>
     </header>
     <section class="modal-card-body">
-      <contact-info :contact="contact" v-if="!isEditing" @deleted="contactDeleted"/>
-      <contact-form :contact="contact" v-model="contactInfo" v-if="isEditing"/>
+      <contact-info
+        :contact="contact"
+        v-if="!isEditing"
+        @deleted="contactDeleted"
+      />
+      <contact-form :contact="contact" v-model="contactInfo" v-if="isEditing" />
     </section>
   </div>
 </template>
@@ -121,5 +130,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

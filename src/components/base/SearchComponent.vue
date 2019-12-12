@@ -2,15 +2,18 @@
   <div id="search-area">
     <b-field>
       <b-input
-          expanded
-          type="text"
-          size="is-medium"
-          placeholder="Search by name, email, phone number..."
-          v-model="searchString"
-          @keydown.native.enter.prevent="performSearch">
+        expanded
+        type="text"
+        size="is-medium"
+        placeholder="Search by name, email, phone number..."
+        v-model="searchString"
+        @keydown.native.enter.prevent="performSearch"
+      >
       </b-input>
       <p class="control">
-        <button class="button is-dark is-medium"><i class="fas fa-search"></i></button>
+        <button class="button is-dark is-medium">
+          <i class="fas fa-search"></i>
+        </button>
       </p>
     </b-field>
   </div>

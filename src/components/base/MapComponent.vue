@@ -1,8 +1,9 @@
 <template>
   <mapbox
-      :access-token="mapBoxToken"
-      :map-options="mapBoxOptions"
-      @map-load="mapLoaded">
+    :access-token="mapBoxToken"
+    :map-options="mapBoxOptions"
+    @map-load="mapLoaded"
+  >
   </mapbox>
 </template>
 
@@ -55,9 +56,9 @@ export default {
       this.addressesCoordinates = [];
       this.addresses.forEach(address => {
         const encodedAddress = encodeURI(address);
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?limit=1&access_token=${
-          this.mapBoxToken
-        }`;
+        const url =
+          'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+          `${encodedAddress}.json?limit=1&access_token=${this.mapBoxToken}`;
         this.$http.get(url).then(
           response => {
             if (

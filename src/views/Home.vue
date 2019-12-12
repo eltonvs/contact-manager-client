@@ -1,14 +1,21 @@
 <template>
   <div class="home section">
     <main class="container">
-      <b-loading :is-full-page="true" :active.sync="isLoading" :can-cancel="false"></b-loading>
+      <b-loading
+        :is-full-page="true"
+        :active.sync="isLoading"
+        :can-cancel="false"
+      ></b-loading>
       <div class="columns">
         <section class="column">
-          <search-component v-model="searchString" @search="searchContacts"/>
+          <search-component v-model="searchString" @search="searchContacts" />
           <div class="add-contact">
             <b-field>
               <p class="control">
-                <button class="button is-info is-pulled-right" @click="addNewContact">
+                <button
+                  class="button is-info is-pulled-right"
+                  @click="addNewContact"
+                >
                   <i class="fas fa-user-plus"></i>&nbsp; Add new Contact
                 </button>
               </p>
@@ -20,11 +27,14 @@
             </button>
           </div>
           <div class="is-clearfix"></div>
-          <no-results message="No contact found" v-if="!isLoading && contacts.length === 0"/>
-          <contacts-list :contacts="contacts" v-if="contacts.length > 0"/>
+          <no-results
+            message="No contact found"
+            v-if="!isLoading && contacts.length === 0"
+          />
+          <contacts-list :contacts="contacts" v-if="contacts.length > 0" />
         </section>
         <aside class="column is-one-third">
-          <birthdays-component :key="birthdaysKey"/>
+          <birthdays-component :key="birthdaysKey" />
         </aside>
       </div>
     </main>

@@ -3,50 +3,73 @@
     <header class="modal-card-head">
       <p class="modal-card-title">Add new Contact</p>
       <button
-          class="button is-pulled-right"
-          aria-label="Cancel"
-          v-if="!isFilled"
-          @click="cancel">
+        class="button is-pulled-right"
+        aria-label="Cancel"
+        v-if="!isFilled"
+        @click="cancel"
+      >
         Cancel
       </button>
       <button
-          class="button is-primary is-pulled-right"
-          aria-label="Edit profile"
-          v-bind:class="{'is-loading' : isSaving}"
-          v-if="isFilled"
-          :disabled="!isValid"
-          @click="saveForm">
+        class="button is-primary is-pulled-right"
+        aria-label="Edit profile"
+        v-bind:class="{ 'is-loading': isSaving }"
+        v-if="isFilled"
+        :disabled="!isValid"
+        @click="saveForm"
+      >
         Save
       </button>
     </header>
     <section class="modal-card-body">
       <form @keydown.enter.prevent="">
         <b-field horizontal label="Name">
-          <b-input name="first-name" placeholder="First Name" v-model="contact.firstName" expanded></b-input>
-          <b-input name="last-name" placeholder="Last Name" v-model="contact.lastName" expanded></b-input>
+          <b-input
+            name="first-name"
+            placeholder="First Name"
+            v-model="contact.firstName"
+            expanded
+          ></b-input>
+          <b-input
+            name="last-name"
+            placeholder="Last Name"
+            v-model="contact.lastName"
+            expanded
+          ></b-input>
         </b-field>
 
         <b-field horizontal label="Date of Birth">
           <b-datepicker
-              editable
-              grouped
-              placeholder="Click to select..."
-              icon="calendar"
-              v-model="contact.dateOfBirth"
-              :max-date="maxDate">
+            editable
+            grouped
+            placeholder="Click to select..."
+            icon="calendar"
+            v-model="contact.dateOfBirth"
+            :max-date="maxDate"
+          >
           </b-datepicker>
         </b-field>
-        <hr>
+        <hr />
         <!-- Email Addresses Section -->
-        <multiple-email-field v-model="contact.emails" :isUpdating="false"/>
-        <hr>
+        <multiple-email-field v-model="contact.emails" :isUpdating="false" />
+        <hr />
         <!-- Phone Numbers Section -->
-        <multiple-phone-field v-model="contact.phone_numbers" :isUpdating="false"/>
-        <hr>
+        <multiple-phone-field
+          v-model="contact.phone_numbers"
+          :isUpdating="false"
+        />
+        <hr />
         <!-- Addresses Section -->
-        <multiple-address-field v-model="contact.addresses" :isUpdating="false"/>
+        <multiple-address-field
+          v-model="contact.addresses"
+          :isUpdating="false"
+        />
       </form>
-      <b-loading :is-full-page="false" :active.sync="isSaving" :can-cancel="true"></b-loading>
+      <b-loading
+        :is-full-page="false"
+        :active.sync="isSaving"
+        :can-cancel="true"
+      ></b-loading>
     </section>
   </div>
 </template>

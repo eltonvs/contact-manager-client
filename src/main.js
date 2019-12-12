@@ -26,9 +26,8 @@ Vue.http.options.root = 'http://localhost:8000/contactmanager/v1/';
 const { http } = Vue;
 export default http;
 
-Vue.filter(
-  'formatDate',
-  value => (value ? moment(String(value)).format('MM/DD/YYYY') : ''),
+Vue.filter('formatDate', value =>
+  value ? moment(String(value)).format('MM/DD/YYYY') : '',
 );
 
 new Vue({

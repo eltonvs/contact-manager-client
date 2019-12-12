@@ -2,42 +2,43 @@
   <div>
     <label class="label">Email Addresses</label>
     <b-field
-        grouped
-        v-for="(email, index) in emailAddresses"
-        :key="'email_input' + index">
+      grouped
+      v-for="(email, index) in emailAddresses"
+      :key="'email_input' + index"
+    >
       <b-field expanded>
         <b-input
-            required
-            placeholder="Email Address"
-            type="email"
-            v-model="email.email"
-            :disabled="isUpdating && (email.isLoading || email.isSaving)"
-            @keydown.native.enter.prevent="save(email, index)"
-            @input="onChanged(email, index)">
+          required
+          placeholder="Email Address"
+          type="email"
+          v-model="email.email"
+          :disabled="isUpdating && (email.isLoading || email.isSaving)"
+          @keydown.native.enter.prevent="save(email, index)"
+          @input="onChanged(email, index)"
+        >
         </b-input>
       </b-field>
       <p class="control action-buttons">
         <button
-            class="button is-danger"
-            :class="{'is-loading' : email.isDeleting}"
-            :disabled="!canRemove(email)"
-            @click.prevent="remove(email, index)">
+          class="button is-danger"
+          :class="{ 'is-loading': email.isDeleting }"
+          :disabled="!canRemove(email)"
+          @click.prevent="remove(email, index)"
+        >
           <i class="fas fa-times squared"></i>
         </button>
         <button
-            class="button is-primary"
-            :class="{'is-loading' : email.isSaving}"
-            :disabled="!canSave(email)"
-            v-if="isUpdating"
-            @click.prevent="save(email, index)">
+          class="button is-primary"
+          :class="{ 'is-loading': email.isSaving }"
+          :disabled="!canSave(email)"
+          v-if="isUpdating"
+          @click.prevent="save(email, index)"
+        >
           <i class="fas fa-check squared"></i>
         </button>
       </p>
     </b-field>
-    <button
-        class="button"
-        :disabled="!canAdd()"
-        @click.prevent="add">
+    <button class="button" :disabled="!canAdd()" @click.prevent="add">
       Add email &nbsp;<i class="fas fa-plus"></i>
     </button>
   </div>

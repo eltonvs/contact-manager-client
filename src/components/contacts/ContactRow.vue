@@ -1,9 +1,11 @@
 <template>
   <div class="contact level is-mobile" @click="click" title="Contact details">
     <div class="contact__image level-right">
-      <v-gravatar :email="contact.emails[0]" default-img="identicon"/>
+      <v-gravatar :email="contact.emails[0]" default-img="identicon" />
     </div>
-    <div class="contact__info level-item is-size-5 is-size-6-mobile has-text-weight-semibold">
+    <div
+      class="contact__info level-item is-size-5 is-size-6-mobile has-text-weight-semibold"
+    >
       {{ contact.first_name + ' ' + contact.last_name }}
     </div>
     <div class="contact__actions level-right"><i class="fas fa-eye"></i></div>

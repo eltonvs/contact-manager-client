@@ -1,13 +1,14 @@
 <template>
   <div id="contacts-list">
     <contact-row
-        v-for="contact of contacts"
-        v-bind:key="contact.id"
-        v-bind:contact="contact"
-        @click="showModal(contact)"/>
+      v-for="contact of contacts"
+      v-bind:key="contact.id"
+      v-bind:contact="contact"
+      @click="showModal(contact)"
+    />
 
     <b-modal :active.sync="isModalActive" has-modal-card>
-      <ContactModal v-bind:contact="modalProps" @deleted="contactDeleted"/>
+      <ContactModal v-bind:contact="modalProps" @deleted="contactDeleted" />
     </b-modal>
   </div>
 </template>

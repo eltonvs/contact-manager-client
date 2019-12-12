@@ -7,7 +7,11 @@
     <media-item title="Email Addresses" icon="fas fa-envelope">
       <ul>
         <li v-for="email in contact.emails" v-bind:key="email">
-          <a v-bind:href="'mailto:' + email" v-bind:title="'Send a message to ' + email">{{ email }}</a>
+          <a
+            v-bind:href="'mailto:' + email"
+            v-bind:title="'Send a message to ' + email"
+            >{{ email }}</a
+          >
         </li>
       </ul>
     </media-item>
@@ -19,29 +23,41 @@
       </ul>
     </media-item>
     <media-item
-        title="Addresses"
-        icon="fas fa-map-marker-alt"
-        v-if="contact && contact.addresses && contact.addresses.length > 0">
+      title="Addresses"
+      icon="fas fa-map-marker-alt"
+      v-if="contact && contact.addresses && contact.addresses.length > 0"
+    >
       <media-item
-          v-for="(address, index) in contact.addresses"
-          v-bind:key="'address_item' + index"
-          v-bind:noBorder="index === 0">
+        v-for="(address, index) in contact.addresses"
+        v-bind:key="'address_item' + index"
+        v-bind:noBorder="index === 0"
+      >
         <p>
-          {{ address.address }} - {{ address.city }}<br/>
-          {{ address.state }}, {{ address.country }}<br/>
+          {{ address.address }} - {{ address.city }}<br />
+          {{ address.state }}, {{ address.country }}<br />
           {{ address.zip_code }}
         </p>
       </media-item>
       <media-item>
-        <map-component :addresses="contact.addresses.map(address => formattedAddress(address))"/>
+        <map-component
+          :addresses="
+            contact.addresses.map(address => formattedAddress(address))
+          "
+        />
       </media-item>
     </media-item>
     <media-item>
       <div class="has-text-centered">
-        <button class="button is-danger" @click="confirmContactDeletion">Delete Contact</button>
+        <button class="button is-danger" @click="confirmContactDeletion">
+          Delete Contact
+        </button>
       </div>
     </media-item>
-    <b-loading :is-full-page="false" :active.sync="isLoading" :can-cancel="true"></b-loading>
+    <b-loading
+      :is-full-page="false"
+      :active.sync="isLoading"
+      :can-cancel="true"
+    ></b-loading>
   </div>
 </template>
 

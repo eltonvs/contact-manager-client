@@ -2,44 +2,45 @@
   <div>
     <label class="label">Phone Numbers</label>
     <b-field
-        grouped
-        v-for="(phone, index) in phoneNumbers"
-        :key="'phone_input' + index">
+      grouped
+      v-for="(phone, index) in phoneNumbers"
+      :key="'phone_input' + index"
+    >
       <b-field expanded>
         <b-input
-            required
-            placeholder="Phone Number"
-            type="tel"
-            minlength="7"
-            maxlength="20"
-            v-model="phone.phone"
-            :disabled="isUpdating && (phone.isLoading || phone.isSaving)"
-            @keydown.native.enter.prevent="save(phone, index)"
-            @input="onChanged(phone, index)">
+          required
+          placeholder="Phone Number"
+          type="tel"
+          minlength="7"
+          maxlength="20"
+          v-model="phone.phone"
+          :disabled="isUpdating && (phone.isLoading || phone.isSaving)"
+          @keydown.native.enter.prevent="save(phone, index)"
+          @input="onChanged(phone, index)"
+        >
         </b-input>
       </b-field>
       <p class="control action-buttons">
         <button
-            class="button is-danger"
-            :class="{'is-loading' : phone.isDeleting}"
-            :disabled="!canRemove(phone)"
-            @click.prevent="remove(phone, index)">
+          class="button is-danger"
+          :class="{ 'is-loading': phone.isDeleting }"
+          :disabled="!canRemove(phone)"
+          @click.prevent="remove(phone, index)"
+        >
           <i class="fas fa-times squared"></i>
         </button>
         <button
-            class="button is-primary"
-            :class="{'is-loading' : phone.isSaving}"
-            :disabled="!canSave(phone)"
-            v-if="isUpdating"
-            @click.prevent="save(phone, index)">
+          class="button is-primary"
+          :class="{ 'is-loading': phone.isSaving }"
+          :disabled="!canSave(phone)"
+          v-if="isUpdating"
+          @click.prevent="save(phone, index)"
+        >
           <i class="fas fa-check squared"></i>
         </button>
       </p>
     </b-field>
-    <button
-        class="button"
-        :disabled="!canAdd()"
-        @click.prevent="add">
+    <button class="button" :disabled="!canAdd()" @click.prevent="add">
       Add phone &nbsp;<i class="fas fa-plus"></i>
     </button>
   </div>

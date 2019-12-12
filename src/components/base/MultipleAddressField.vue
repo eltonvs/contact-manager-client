@@ -2,85 +2,90 @@
   <div>
     <label class="label">Addresses</label>
     <section
-        class="tile is-vertical notification"
-        v-for="(address, index) in addresses"
-        :key="'address_input' + index">
+      class="tile is-vertical notification"
+      v-for="(address, index) in addresses"
+      :key="'address_input' + index"
+    >
       <b-field label="Address" expanded horizontal>
         <b-input
-            required
-            placeholder="Address"
-            type="text"
-            v-model="address.address"
-            :disabled="isUpdating && (address.isLoading || address.isSaving)"
-            @keydown.native.enter.prevent="save(address, index)"
-            @input="onChanged(address, index)">
+          required
+          placeholder="Address"
+          type="text"
+          v-model="address.address"
+          :disabled="isUpdating && (address.isLoading || address.isSaving)"
+          @keydown.native.enter.prevent="save(address, index)"
+          @input="onChanged(address, index)"
+        >
         </b-input>
       </b-field>
       <b-field label="City" expanded horizontal>
         <b-input
-            required
-            placeholder="City"
-            type="text"
-            v-model="address.city"
-            :disabled="isUpdating && (address.isLoading || address.isSaving)"
-            @keydown.native.enter.prevent="save(address, index)"
-            @input="onChanged(address, index)">
+          required
+          placeholder="City"
+          type="text"
+          v-model="address.city"
+          :disabled="isUpdating && (address.isLoading || address.isSaving)"
+          @keydown.native.enter.prevent="save(address, index)"
+          @input="onChanged(address, index)"
+        >
         </b-input>
       </b-field>
       <b-field label="State" expanded horizontal>
         <b-input
-            required
-            placeholder="State"
-            type="text"
-            v-model="address.state"
-            :disabled="isUpdating && (address.isLoading || address.isSaving)"
-            @keydown.native.enter.prevent="save(address, index)"
-            @input="onChanged(address, index)">
+          required
+          placeholder="State"
+          type="text"
+          v-model="address.state"
+          :disabled="isUpdating && (address.isLoading || address.isSaving)"
+          @keydown.native.enter.prevent="save(address, index)"
+          @input="onChanged(address, index)"
+        >
         </b-input>
       </b-field>
       <b-field label="Country" expanded horizontal>
         <b-input
-            required
-            placeholder="Country"
-            type="text"
-            v-model="address.country"
-            :disabled="isUpdating && (address.isLoading || address.isSaving)"
-            @keydown.native.enter.prevent="save(address, index)"
-            @input="onChanged(address, index)">
+          required
+          placeholder="Country"
+          type="text"
+          v-model="address.country"
+          :disabled="isUpdating && (address.isLoading || address.isSaving)"
+          @keydown.native.enter.prevent="save(address, index)"
+          @input="onChanged(address, index)"
+        >
         </b-input>
       </b-field>
       <b-field label="Zip Code" expanded horizontal>
         <b-input
-            required
-            placeholder="Zip Code"
-            type="text"
-            v-model="address.zipCode"
-            :disabled="isUpdating && (address.isLoading || address.isSaving)"
-            @keydown.native.enter.prevent="save(address, index)"
-            @input="onChanged(address, index)">
+          required
+          placeholder="Zip Code"
+          type="text"
+          v-model="address.zipCode"
+          :disabled="isUpdating && (address.isLoading || address.isSaving)"
+          @keydown.native.enter.prevent="save(address, index)"
+          @input="onChanged(address, index)"
+        >
         </b-input>
       </b-field>
       <div class="action-buttons has-text-right">
         <button
-            class="button is-danger"
-            :class="{'is-loading' : address.isDeleting}"
-            @click.prevent="remove(address, index)">
+          class="button is-danger"
+          :class="{ 'is-loading': address.isDeleting }"
+          @click.prevent="remove(address, index)"
+        >
           <i class="fas fa-times squared"></i>&nbsp; Remove Address
         </button>
         <button
-            class="button is-primary"
-            :class="{'is-loading' : address.isSaving}"
-            :disabled="!canSave(address)"
-            v-if="isUpdating"
-            @click.prevent="save(address, index)">
+          class="button is-primary"
+          :class="{ 'is-loading': address.isSaving }"
+          :disabled="!canSave(address)"
+          v-if="isUpdating"
+          @click.prevent="save(address, index)"
+        >
           <i class="fas fa-check squared"></i>&nbsp; Save Address
         </button>
       </div>
     </section>
-    <button
-        class="button"
-        :disabled="!canAdd()"
-        @click.prevent="add">
+    <button class="button" :disabled="!canAdd()" @click.prevent="add">
       Add address &nbsp;<i class="fas fa-plus"></i>
     </button>
   </div>
