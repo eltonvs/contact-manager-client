@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "buefy": "^0.8.8",
-    "core-js": "^3.5.0",
+    "core-js": "^3.6.1",
     "mapbox-gl-vue": "^2.0.3",
     "moment": "^2.24.0",
     "vue": "^2.6.11",
